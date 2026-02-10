@@ -22,7 +22,7 @@ class FixCommand extends Command
         $tool = strtolower((string) $this->option('tool'));
         $dryRun = (bool) $this->option('dry-run');
 
-        [$toolLabel, $command] = $this->resolveCommand($tool, $dryRun, $rootPath);
+        [$toolLabel, $command] = $this->resolveFixerCommand($tool, $dryRun, $rootPath);
 
         if ($toolLabel === null || $command === null) {
             $this->error('No supported formatter found.');
@@ -53,7 +53,7 @@ class FixCommand extends Command
         return (int) $exitCode;
     }
 
-    private function resolveCommand($tool, $dryRun, $rootPath)
+    private function resolveFixerCommand($tool, $dryRun, $rootPath)
     {
         if (!in_array($tool, ['auto', 'pint', 'php-cs-fixer'], true)) {
             $this->error("Invalid --tool option: {$tool}");

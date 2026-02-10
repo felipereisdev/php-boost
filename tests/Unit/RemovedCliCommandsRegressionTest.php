@@ -32,4 +32,13 @@ class RemovedCliCommandsRegressionTest extends TestCase
         $this->assertStringNotContainsString('DocsCommand::class', $provider);
         $this->assertStringNotContainsString('AnalyzeCommand::class', $provider);
     }
+
+    public function testFixCommandDoesNotDeclareReservedResolveCommandMethod()
+    {
+        $fixCommand = file_get_contents(getcwd() . '/src/Laravel/Console/FixCommand.php');
+        $this->assertIsString($fixCommand);
+
+        $this->assertStringNotContainsString('function resolveCommand(', $fixCommand);
+        $this->assertStringContainsString('function resolveFixerCommand(', $fixCommand);
+    }
 }
