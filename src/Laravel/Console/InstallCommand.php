@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use FelipeReisDev\PhpBoost\Core\Tools\ProjectInspector;
 use FelipeReisDev\PhpBoost\Core\Services\GuidelineGenerator;
 use FelipeReisDev\PhpBoost\Core\Services\GuidelineWriter;
+use FelipeReisDev\PhpBoost\Core\Services\McpClientConfigurator;
 
 class InstallCommand extends Command
 {
@@ -47,6 +48,8 @@ class InstallCommand extends Command
         if ($generateAgents) {
             $this->generateAgentsMd($generator, $writer);
         }
+
+        $this->configureMcpClients($rootPath);
 
         $this->newLine();
         $this->info('Installation complete!');
@@ -120,9 +123,44 @@ class InstallCommand extends Command
         $this->info('Next Steps:');
         $this->info('1. Review generated CLAUDE.md and AGENTS.md files');
         $this->info('2. Customize any sections below the AUTO-GENERATED markers');
-        $this->info('3. Configure your MCP client to use php artisan boost:start (auto-start)');
+        $this->info('3. Verify MCP server "php-boost" is available in Codex/Claude');
         $this->info('4. Re-run this command anytime to update guidelines');
         $this->newLine();
         $this->comment('Tip: Use --claude-only or --agents-only to regenerate specific files');
+    }
+
+    private function configureMcpClients($rootPath)
+    {
+        $this->info('Step 3: Configuring MCP clients (Codex/Claude)...');
+
+        $configurator = new McpClientConfigurator();
+        $results = $configurator->configure($rootPath, 'php artisan boost:start');
+
+        $this->renderMcpResult('Codex', $results['codex']);
+        $this->renderMcpResult('Claude', $results['claude']);
+        $this->newLine();
+    }
+
+    private function renderMcpResult($clientName, $result)
+    {
+        if (!is_array($result)) {
+            $this->error("✗ {$clientName}: Unexpected configuration result");
+            return;
+        }
+
+        if (($result['status'] ?? 'error') === 'error') {
+            $message = isset($result['message']) ? $result['message'] : 'Unknown error.';
+            $this->error("✗ {$clientName}: {$message}");
+            if (!empty($result['path'])) {
+                $this->comment('  → Config path: ' . $result['path']);
+            }
+            return;
+        }
+
+        $verb = ($result['status'] ?? '') === 'created' ? 'created' : 'updated';
+        $this->info("✓ {$clientName} MCP config {$verb}");
+        if (!empty($result['path'])) {
+            $this->comment('  → Config path: ' . $result['path']);
+        }
     }
 }
