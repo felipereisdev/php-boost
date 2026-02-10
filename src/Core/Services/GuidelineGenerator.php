@@ -66,6 +66,7 @@ class GuidelineGenerator
         $sections[] = $this->generateCodeStyle();
         $sections[] = $this->generatePhpSection();
         $sections[] = $this->generateFrameworkSection();
+        $sections[] = $this->generatePackagesSection();
 
         $sections[] = "\n<!-- END AUTO-GENERATED -->";
 
