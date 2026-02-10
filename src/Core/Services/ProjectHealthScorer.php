@@ -388,7 +388,7 @@ class ProjectHealthScorer
             'code_quality' => [
                 'action' => 'Run code quality tools',
                 'impact' => 'Cleaner, more maintainable code',
-                'commands' => ['php artisan boost:validate', 'composer require --dev phpstan/phpstan'],
+                'commands' => ['Use MCP tool BoostValidate', 'composer require --dev phpstan/phpstan'],
             ],
         ];
 

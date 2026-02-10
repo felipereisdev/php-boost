@@ -13,8 +13,6 @@ class StartCommand extends Command
 
     public function handle()
     {
-        $this->info('Starting PHP Boost MCP Server...');
-
         $server = app(Server::class);
         $server->start();
     }

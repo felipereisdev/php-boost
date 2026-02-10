@@ -1,0 +1,14 @@
+[
+  {
+    "method": "GET",
+    "path": "/posts",
+    "controller_action": "App\\Http\\Controllers\\PostController@index",
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/posts",
+    "controller_action": "App\\Http\\Controllers\\PostController@store",
+    "auth": false
+  }
+]

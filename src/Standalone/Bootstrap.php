@@ -4,10 +4,7 @@ namespace FelipeReisDev\PhpBoost\Standalone;
 
 use FelipeReisDev\PhpBoost\Core\Mcp\Server;
 use FelipeReisDev\PhpBoost\Core\Mcp\Transport\StdioTransport;
-use FelipeReisDev\PhpBoost\Core\Tools\GetConfig;
-use FelipeReisDev\PhpBoost\Core\Tools\DatabaseSchema;
-use FelipeReisDev\PhpBoost\Core\Tools\DatabaseQuery;
-use FelipeReisDev\PhpBoost\Core\Tools\ReadLogEntries;
+use FelipeReisDev\PhpBoost\Core\Support\ToolRegistrar;
 
 class Bootstrap
 {
@@ -36,12 +33,9 @@ class Bootstrap
     public function createServer()
     {
         $server = new Server(new StdioTransport(), $this->config);
-        
+
         $registry = $server->getToolRegistry();
-        $registry->register(new GetConfig($this->config));
-        $registry->register(new DatabaseSchema($this->config));
-        $registry->register(new DatabaseQuery($this->config));
-        $registry->register(new ReadLogEntries($this->config));
+        ToolRegistrar::registerCoreTools($registry, $this->config);
 
         return $server;
     }

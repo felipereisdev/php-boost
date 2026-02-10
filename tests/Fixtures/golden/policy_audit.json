@@ -1,0 +1,14 @@
+[
+  {
+    "endpoint": "GET /posts",
+    "policy": "can:viewAny,App\\\\Models\\\\Post",
+    "model": "Post",
+    "status": "protected"
+  },
+  {
+    "endpoint": "POST /posts",
+    "policy": null,
+    "model": "Post",
+    "status": "missing_explicit_policy"
+  }
+]

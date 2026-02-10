@@ -102,12 +102,14 @@ Templates are stored in `.php-boost/templates/` and support merge strategies:
 
 See [docs/CUSTOM_TEMPLATES.md](docs/CUSTOM_TEMPLATES.md) for details.
 
-### Code Quality & Validation (Laravel Command)
+### Code Quality & Validation (MCP Tool)
 
-Validate your code against best practices and guidelines:
+Validate your code against best practices and guidelines via `BoostValidate` tool call.
+
+Auto-fix code style using project formatter:
 
 ```bash
-php artisan boost:validate
+php artisan boost:fix
 ```
 
 Options:
@@ -122,13 +124,9 @@ The validation includes:
 - **Security**: eval() usage, weak hashing, SQL injection risks
 - **Performance**: N+1 queries, pagination, nested loops
 
-### Migration Path Generator (Laravel Command)
+### Migration Path Generator (MCP Tool)
 
-Generate step-by-step migration guides for framework upgrades:
-
-```bash
-php artisan boost:migrate-guide --from=laravel-8 --to=laravel-11
-```
+Generate step-by-step migration guides via `BoostMigrateGuide` tool call.
 
 Provides:
 - **Migration Steps**: Detailed checklist for upgrade
@@ -137,13 +135,9 @@ Provides:
 - **Recommended Approach**: Incremental vs direct upgrade
 - **Resources**: Documentation links and tools
 
-### Project Health Score (Laravel Command)
+### Project Health Score (MCP Tool)
 
-Get comprehensive health analysis of your project:
-
-```bash
-php artisan boost:health
-```
+Get comprehensive health analysis via `BoostHealth` tool call.
 
 Options:
 - `--format=json` - JSON output for integrations
@@ -214,14 +208,76 @@ $server->start();
 | `DatabaseSchema` | Get database schema | All | ✓ |
 | `DatabaseQuery` | Execute read-only SQL queries | All | ✓ |
 | `ReadLogEntries` | Read application logs | All | ✓ |
+| `ExplainQuery` | EXPLAIN plans + bottleneck summary | All | ✓ |
+| `TableDDL` | Real DDL for table/view/index/constraint | All | ✓ |
+| `LogErrorDigest` | Error fingerprint/frequency digest | All | ✓ |
+| `SchemaDiff` | Schema drift vs pending migrations | All | ✓ |
+| `ListModels` | Discover Eloquent-like models | All | ✓ |
+| `ModelRelations` | Map model relations | All | ✓ |
+| `FindNPlusOneRisk` | Heuristic static N+1 risk scan | All | ✓ |
+| `SafeMigrationPreview` | Migration impact preview (safe/read-only) | All | ✓ |
+| `QueueHealth` | Queue health summary with current coverage | All | ✓ |
+| `APIContractMap` | Endpoint contract map (Orion fallback) | All | ✓ |
+| `FeatureFlagsConfig` | Feature flags + env/config divergence checks | All | ✓ |
+| `PolicyAudit` | Endpoint -> policy/gate audit matrix | All | ✓ |
+| `DeadCodeHints` | Unreferenced-code heuristic hints | All | ✓ |
 
 ### Framework Tools (Registered by Default)
 
 | Tool | Description | Framework | Read-Only |
 |------|-------------|-----------|-----------|
 | `ListRoutes` | List application routes | Laravel/Lumen | ✓ |
+| `ApplicationInfo` | Application metadata and environment details | Laravel | ✓ |
+| `ListArtisanCommands` | List available Artisan commands | Laravel | ✓ |
+| `QueueStatus` | Queue status and retry operations | Laravel | ✗ |
+| `CacheManager` | Cache inspection and mutation utilities | Laravel | ✗ |
+| `Tinker` | Execute PHP expressions in app context | Laravel | ✗ |
 
-Other framework tools exist in the codebase and can be registered manually when needed.
+### Driver Support Matrix (Phase 1 Tools)
+
+| Tool | MySQL | PostgreSQL | SQLite | SQL Server | Oracle |
+|------|-------|------------|--------|------------|--------|
+| `ExplainQuery` | JSON explain | ANALYZE+BUFFERS+JSON | Fallback plan | Fallback plan | Fallback plan |
+| `TableDDL` | Native SHOW CREATE | Catalog + pg_get_* | sqlite_master | OBJECT_DEFINITION fallback | DBMS_METADATA fallback |
+| `SchemaDiff` | Heuristic pending migrations | Heuristic pending migrations | Heuristic pending migrations | Limited | Limited |
+| `LogErrorDigest` | N/A (filesystem) | N/A | N/A | N/A | N/A |
+
+Notes:
+- Fallback modes return `status=warning` with explicit limitations in `meta.limitations`.
+- `SchemaDiff` parser is heuristic and may degrade for dynamic migration logic.
+
+## Production Operations
+
+### Response Contract
+
+All tool calls now return a stable JSON envelope:
+
+- `tool`
+- `status` (`ok`, `warning`, `error`)
+- `summary`
+- `meta` (includes `duration_ms`)
+- `data`
+- optional `findings` and `errors`
+
+Legacy tool outputs are automatically normalized to this envelope at the MCP server layer.
+
+### Reliability Checklist
+
+- Keep MCP transport output clean (JSON-RPC only on stdout)
+- Validate with MCP flow tests (`initialize -> tools/list -> tools/call`)
+- Prefer read-only tools in production automation
+- Monitor warnings from fallback modes (`meta.limitations`)
+
+### Troubleshooting
+
+- `Server not initialized`
+  - Ensure client sends `initialize` before `tools/list` or `tools/call`.
+- `Tool 'X' not found`
+  - Verify adapter registration (`ToolRegistrar`) and call `tools/list`.
+- `Queue telemetry collected with limitations`
+  - Confirm `jobs` / `failed_jobs` tables exist and horizon tables for worker metrics.
+- `SchemaDiff` low confidence / partial drift
+  - Check for dynamic migrations or raw SQL (`DB::statement`) and review manually.
 
 ## Available Commands
 
@@ -231,13 +287,7 @@ Other framework tools exist in the codebase and can be registered manually when 
 |---------|-------------|
 | `boost:install` | Generate AI guidelines (CLAUDE.md, AGENTS.md) |
 | `boost:start` | Start MCP server |
-| `boost:validate` | Validate code against guidelines |
-| `boost:migrate-guide` | Generate migration path between versions |
-| `boost:health` | Calculate project health score |
-| `boost:snippet` | Generate code snippets following project guidelines |
-| `boost:profile` | Analyze performance and detect issues |
-| `boost:docs` | Generate project documentation |
-| `boost:analyze` | AI-powered codebase analysis and suggestions |
+| `boost:fix` | Auto-fix code style issues |
 
 ### Lumen
 
@@ -254,6 +304,32 @@ Other framework tools exist in the codebase and can be registered manually when 
 | `boost-template` | Manage custom templates |
 | `boost-sync` | Export/import configuration |
 | `boost-validate` | Validate code quality |
+
+## MCP Tool Equivalents (Breaking Change)
+
+The following CLI commands were removed and replaced by MCP tools:
+
+| Removed CLI | MCP Tool |
+|------------|----------|
+| `boost:validate` | `BoostValidate` |
+| `boost:migrate-guide` | `BoostMigrateGuide` |
+| `boost:health` | `BoostHealth` |
+| `boost:snippet` | `BoostSnippet` |
+| `boost:profile` | `BoostProfile` |
+| `boost:docs` | `BoostDocs` |
+| `boost:analyze` | `BoostAnalyze` |
+
+Example MCP payload:
+
+```json
+{
+  "name": "BoostValidate",
+  "arguments": {
+    "ci": true,
+    "threshold": 75
+  }
+}
+```
 
 ## Configuration
 

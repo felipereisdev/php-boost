@@ -4,11 +4,7 @@ namespace FelipeReisDev\PhpBoost\Lumen;
 
 use FelipeReisDev\PhpBoost\Core\Mcp\Server;
 use FelipeReisDev\PhpBoost\Core\Mcp\Transport\StdioTransport;
-use FelipeReisDev\PhpBoost\Core\Tools\GetConfig;
-use FelipeReisDev\PhpBoost\Core\Tools\DatabaseSchema;
-use FelipeReisDev\PhpBoost\Core\Tools\DatabaseQuery;
-use FelipeReisDev\PhpBoost\Core\Tools\ReadLogEntries;
-use FelipeReisDev\PhpBoost\Laravel\Tools\ListRoutes;
+use FelipeReisDev\PhpBoost\Core\Support\ToolRegistrar;
 use Illuminate\Support\ServiceProvider;
 
 class BoostServiceProvider extends ServiceProvider
@@ -29,13 +25,10 @@ class BoostServiceProvider extends ServiceProvider
             ];
 
             $server = new Server(new StdioTransport(), $config);
-            
+
             $registry = $server->getToolRegistry();
-            $registry->register(new GetConfig($config));
-            $registry->register(new DatabaseSchema($config));
-            $registry->register(new DatabaseQuery($config));
-            $registry->register(new ReadLogEntries($config));
-            $registry->register(new ListRoutes($config));
+            ToolRegistrar::registerCoreTools($registry, $config);
+            ToolRegistrar::registerLumenTools($registry, $config);
 
             return $server;
         });

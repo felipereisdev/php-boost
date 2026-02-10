@@ -1,0 +1,8 @@
+[
+  {
+    "file": "PostController.php",
+    "pattern": "relation-property-chain-in-loop|query-call-in-loop",
+    "severity": "high",
+    "relation": "user.name"
+  }
+]

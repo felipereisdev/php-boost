@@ -24,7 +24,5 @@ if (file_exists(getcwd() . '/.env')) {
     }
 }
 
-echo "Starting PHP Boost MCP Server..." . PHP_EOL;
-
 $bootstrap = Bootstrap::fromEnv();
 $bootstrap->start();

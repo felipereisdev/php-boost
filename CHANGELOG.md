@@ -9,6 +9,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- MCP Tool infrastructure for phased roadmap:
+  - `ToolResult` envelope (`tool`, `status`, `summary`, `meta`, `data`, optional `findings`/`errors`)
+  - `DriverCapabilities` for multi-DB feature detection and identifier/query safety checks
+  - `ToolRegistrar` with adapter-specific registration methods:
+    - `registerCoreTools($registry, $config)`
+    - `registerLaravelTools($registry, $config)`
+    - `registerLumenTools($registry, $config)`
+- New core services:
+  - `DatabaseIntrospectorService`
+  - `MigrationImpactAnalyzerService`
+  - `LogFingerprintService`
+  - `StaticAnalysisService`
+  - `EloquentModelMapService`
+  - `ApiContractService`
+  - `QueueTelemetryService`
+  - `EnvConfigDiffService`
+- New MCP tools (read-only):
+  - `ExplainQuery`
+  - `TableDDL`
+  - `LogErrorDigest`
+  - `SchemaDiff`
+  - `ListModels`
+  - `ModelRelations`
+  - `FindNPlusOneRisk`
+  - `SafeMigrationPreview`
+  - `QueueHealth`
+  - `APIContractMap`
+  - `FeatureFlagsConfig`
+  - `PolicyAudit`
+  - `DeadCodeHints`
+- Phase 3 refinements:
+  - `FindNPlusOneRisk`: richer static signals, severity, evidence, confidence scoring
+  - `SafeMigrationPreview`: operation-level impact profiles and aggregate risk score
+  - `QueueHealth`: DB queue metrics (pending/failed/retries/lag) + Horizon/Redis heuristics
+  - `DeadCodeHints`: reference-aware confidence with route/console usage signals
+- Phase 4 reliability hardening:
+  - MCP server loop now exits cleanly on transport EOF (prevents idle spin on closed streams)
+  - `tools/call` responses include execution `duration_ms` metadata when tool envelope has `meta`
+  - improved tool result JSON encoding resilience for non-UTF8/encoding edge cases
+  - unknown tool calls now return `METHOD_NOT_FOUND` (`-32601`)
+  - end-to-end MCP tests for `initialize -> tools/list -> tools/call` flow
+- Phase 5 release/operations:
+  - Integration suite added (`tests/Integration`) with SQLite scenarios for `ExplainQuery`, `TableDDL`, `SchemaDiff`, `QueueHealth`
+  - Golden fixtures added for `APIContractMap`, `PolicyAudit`, `FindNPlusOneRisk`, `DeadCodeHints`
+  - Server-level response normalization now enforces stable envelope for legacy tools
+  - Operational runbook and troubleshooting added to README
+- Phase 6 MCP command-tools migration (breaking):
+  - Added MCP tools:
+    - `BoostValidate`
+    - `BoostMigrateGuide`
+    - `BoostHealth`
+    - `BoostSnippet`
+    - `BoostProfile`
+    - `BoostDocs`
+    - `BoostAnalyze`
+  - Removed legacy Laravel CLI commands:
+    - `boost:validate`
+    - `boost:migrate-guide`
+    - `boost:health`
+    - `boost:snippet`
+    - `boost:profile`
+    - `boost:docs`
+    - `boost:analyze`
+  - Updated provider registration and documentation to point to MCP tool equivalents
+- Provider/bootstrap updates:
+  - Laravel provider now registers complete core and Laravel toolsets through `ToolRegistrar`
+  - Lumen provider now registers complete core and Lumen toolsets through `ToolRegistrar`
+  - Standalone bootstrap now registers complete core toolset through `ToolRegistrar`
+
 ### Planned
 - IDE Integration (VSCode, PHPStorm)
 - Template Marketplace
