@@ -60,6 +60,7 @@ Then run in any PHP project:
 
 ```bash
 boost-server --project=/absolute/path/to/project
+boost-install --path=/absolute/path/to/project
 ```
 
 You can also set default project path via env var:
@@ -68,6 +69,8 @@ You can also set default project path via env var:
 export PHP_BOOST_PROJECT_PATH=/absolute/path/to/project
 boost-server
 ```
+
+> `php artisan boost:install` only works when `php-boost` is installed in that specific project (`composer require` in project).
 
 ## Usage
 
@@ -83,6 +86,11 @@ php artisan boost:install
 **Lumen / Standalone:**
 ```bash
 ./vendor/bin/boost-install
+```
+
+**Global install (without project dependency):**
+```bash
+boost-install --path=/absolute/path/to/project
 ```
 
 This will create:
@@ -199,6 +207,13 @@ Global install usage:
 
 ```bash
 boost-server --project=/absolute/path/to/project
+```
+
+Using default project from env var:
+
+```bash
+export PHP_BOOST_PROJECT_PATH=/absolute/path/to/project
+boost-server
 ```
 
 Or create a custom bootstrap:
@@ -331,6 +346,13 @@ Legacy tool outputs are automatically normalized to this envelope at the MCP ser
 | `boost-template` | Manage custom templates |
 | `boost-sync` | Export/import configuration |
 | `boost-validate` | Validate code quality |
+
+### Global Binaries
+
+| Command | Description |
+|---------|-------------|
+| `boost-server --project=/path/to/project` | Start MCP server for any PHP project |
+| `boost-install --path=/path/to/project` | Generate AI guidelines for any PHP project |
 
 ## MCP Tool Equivalents (Breaking Change)
 
