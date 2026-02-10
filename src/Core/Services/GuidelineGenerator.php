@@ -150,17 +150,23 @@ class GuidelineGenerator
 
         $sections = [];
         $sections[] = "\n## Installed Packages\n";
+        $packageDetails = [];
 
         foreach ($this->projectInfo['packages'] as $package => $version) {
+            $sections[] = "- **{$package}:** {$version}";
+
             $packageName = $this->extractPackageName($package);
             $templateFile = $this->templatesPath . "/Packages/{$packageName}.php";
-
             $templateContent = $this->loadTemplate($templateFile);
+
             if ($templateContent !== '') {
-                $sections[] = $templateContent;
-            } else {
-                $sections[] = "- **{$package}:** {$version}";
+                $packageDetails[] = $templateContent;
             }
+        }
+
+        if (!empty($packageDetails)) {
+            $sections[] = "\n## Package-Specific Guidelines\n";
+            $sections[] = implode("\n", $packageDetails);
         }
 
         return implode("\n", $sections);

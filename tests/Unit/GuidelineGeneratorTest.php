@@ -30,7 +30,8 @@ class GuidelineGeneratorTest extends TestCase
                 'count' => 42
             ],
             'packages' => [
-                'laravel/sanctum' => '^2.15'
+                'laravel/sanctum' => '^2.15',
+                'laravel/tinker' => '^2.7'
             ],
             'structure' => [
                 'app/',
@@ -85,6 +86,9 @@ class GuidelineGeneratorTest extends TestCase
         
         $this->assertStringContainsString('Installed Packages', $content);
         $this->assertStringContainsString('laravel/sanctum', $content);
+        $this->assertStringContainsString('laravel/tinker', $content);
+        $this->assertStringContainsString('Package-Specific Guidelines', $content);
+        $this->assertStringContainsString('Laravel Sanctum', $content);
     }
 
     public function testContentIncludesProjectStructure()
