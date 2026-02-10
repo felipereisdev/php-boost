@@ -1,0 +1,12 @@
+{
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "phpunit\/phpunit": "^9.5",
+        "mockery\/mockery": "^1.4"
+    },
+    "timestamp": 1770741150
+}
