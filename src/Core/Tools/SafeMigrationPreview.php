@@ -31,7 +31,7 @@ class SafeMigrationPreview extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new MigrationImpactAnalyzerService();
-        $basePath = isset($arguments['path']) ? $arguments['path'] : getcwd();
+        $basePath = $this->resolveBasePath($arguments, ['path', 'base_path']);
         $pending = $service->pendingMigrations($basePath);
         $impacts = $service->previewImpacts($pending);
 

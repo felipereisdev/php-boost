@@ -38,7 +38,7 @@ class SchemaDiff extends AbstractTool
         $db = new DatabaseIntrospectorService($this->config);
         $migrationAnalyzer = new MigrationImpactAnalyzerService();
 
-        $basePath = isset($arguments['base_path']) ? $arguments['base_path'] : getcwd();
+        $basePath = $this->resolveBasePath($arguments);
         $snapshot = $db->getCurrentSchemaSnapshot();
         $pending = $migrationAnalyzer->pendingMigrations($basePath);
         $drift = $migrationAnalyzer->toDrift($snapshot, $pending, $arguments);

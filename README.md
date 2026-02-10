@@ -48,6 +48,27 @@ $app->register(FelipeReisDev\PhpBoost\Lumen\BoostServiceProvider::class);
 composer require felipereisdev/php-boost
 ```
 
+### Global Install (All PHP Projects on Your Machine)
+
+Install once with Composer global:
+
+```bash
+composer global require felipereisdev/php-boost
+```
+
+Then run in any PHP project:
+
+```bash
+boost-server --project=/absolute/path/to/project
+```
+
+You can also set default project path via env var:
+
+```bash
+export PHP_BOOST_PROJECT_PATH=/absolute/path/to/project
+boost-server
+```
+
 ## Usage
 
 ### Generate AI Guidelines
@@ -172,6 +193,12 @@ php artisan boost:start
 
 ```bash
 ./vendor/bin/boost-server
+```
+
+Global install usage:
+
+```bash
+boost-server --project=/absolute/path/to/project
 ```
 
 Or create a custom bootstrap:

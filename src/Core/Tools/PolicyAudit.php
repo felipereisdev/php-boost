@@ -24,6 +24,7 @@ class PolicyAudit extends AbstractTool
             'properties' => [
                 'route_prefix' => ['type' => 'string'],
                 'include_implicit' => ['type' => 'boolean', 'default' => false],
+                'base_path' => ['type' => 'string'],
             ],
         ];
     }
@@ -31,7 +32,8 @@ class PolicyAudit extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new StaticAnalysisService();
-        $matrix = $service->policyMatrix(getcwd(), isset($arguments['route_prefix']) ? $arguments['route_prefix'] : null);
+        $basePath = $this->resolveBasePath($arguments);
+        $matrix = $service->policyMatrix($basePath, isset($arguments['route_prefix']) ? $arguments['route_prefix'] : null);
         $unprotected = array_values(array_filter($matrix, function ($item) {
             return $item['status'] !== 'protected';
         }));
@@ -43,9 +45,9 @@ class PolicyAudit extends AbstractTool
 
         $summary = 'Policy audit completed';
         if (!empty($unprotected)) {
-            return ToolResult::warning($this->getName(), $summary, $data);
+            return ToolResult::warning($this->getName(), $summary, $data, ['base_path' => $basePath]);
         }
 
-        return ToolResult::success($this->getName(), $summary, $data);
+        return ToolResult::success($this->getName(), $summary, $data, ['base_path' => $basePath]);
     }
 }

@@ -34,10 +34,10 @@ class BoostMigrateGuide extends AbstractTool
     public function execute(array $arguments)
     {
         $start = microtime(true);
+        $rootPath = $this->resolveBasePath($arguments);
 
         try {
             $this->validateArguments($arguments, ['from', 'to']);
-            $rootPath = isset($arguments['base_path']) ? $arguments['base_path'] : getcwd();
             $composerPath = rtrim($rootPath, '/') . '/composer.json';
 
             $generator = new MigrationPathGenerator($rootPath, $composerPath);
@@ -58,7 +58,7 @@ class BoostMigrateGuide extends AbstractTool
                 $this->getName(),
                 'Migration guide generation failed',
                 [],
-                ['base_path' => isset($arguments['base_path']) ? $arguments['base_path'] : getcwd()],
+                ['base_path' => $rootPath],
                 [],
                 [['message' => $e->getMessage()]]
             );

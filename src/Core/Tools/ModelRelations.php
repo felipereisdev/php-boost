@@ -33,7 +33,7 @@ class ModelRelations extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new EloquentModelMapService();
-        $basePath = isset($arguments['path']) ? $arguments['path'] : getcwd();
+        $basePath = $this->resolveBasePath($arguments, ['path', 'base_path']);
         $filter = isset($arguments['model']) ? $arguments['model'] : null;
         $namespaceRoot = isset($arguments['namespace_root']) ? $arguments['namespace_root'] : null;
 

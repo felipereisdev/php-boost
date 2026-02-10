@@ -22,6 +22,7 @@ class FindNPlusOneRisk extends AbstractTool
         return [
             'type' => 'object',
             'properties' => [
+                'base_path' => ['type' => 'string'],
                 'paths' => ['type' => 'array', 'items' => ['type' => 'string']],
                 'severity_threshold' => ['type' => 'number', 'default' => 0.6],
             ],
@@ -31,7 +32,7 @@ class FindNPlusOneRisk extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new StaticAnalysisService();
-        $base = getcwd();
+        $base = $this->resolveBasePath($arguments);
         $paths = isset($arguments['paths']) && is_array($arguments['paths'])
             ? $arguments['paths']
             : [$base . '/app/Http/Controllers', $base . '/app/Http/Resources'];

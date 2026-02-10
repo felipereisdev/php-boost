@@ -22,6 +22,7 @@ class FeatureFlagsConfig extends AbstractTool
         return [
             'type' => 'object',
             'properties' => [
+                'base_path' => ['type' => 'string'],
                 'environments' => ['type' => 'array', 'items' => ['type' => 'string']],
                 'keys_pattern' => ['type' => 'string'],
             ],
@@ -30,9 +31,10 @@ class FeatureFlagsConfig extends AbstractTool
 
     public function execute(array $arguments)
     {
+        $basePath = $this->resolveBasePath($arguments);
         $service = new EnvConfigDiffService();
         $result = $service->analyze(
-            getcwd(),
+            $basePath,
             isset($arguments['keys_pattern']) ? $arguments['keys_pattern'] : null,
             isset($arguments['environments']) && is_array($arguments['environments']) ? $arguments['environments'] : []
         );
@@ -43,7 +45,7 @@ class FeatureFlagsConfig extends AbstractTool
                 $this->getName(),
                 $summary,
                 $result,
-                ['sensitive_exposure_count' => count($result['sensitive_exposure'])]
+                ['sensitive_exposure_count' => count($result['sensitive_exposure']), 'base_path' => $basePath]
             );
         }
 
@@ -51,7 +53,7 @@ class FeatureFlagsConfig extends AbstractTool
             $this->getName(),
             $summary,
             $result,
-            ['environments_scanned' => array_keys($result['environments'])]
+            ['environments_scanned' => array_keys($result['environments']), 'base_path' => $basePath]
         );
     }
 }

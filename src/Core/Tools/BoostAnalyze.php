@@ -40,9 +40,9 @@ class BoostAnalyze extends AbstractTool
     public function execute(array $arguments)
     {
         $start = microtime(true);
+        $basePath = $this->resolveBasePath($arguments);
 
         try {
-            $basePath = isset($arguments['base_path']) ? $arguments['base_path'] : getcwd();
             $learn = !empty($arguments['learn']);
             $suggest = array_key_exists('suggest', $arguments) ? (bool) $arguments['suggest'] : true;
 
@@ -97,7 +97,7 @@ class BoostAnalyze extends AbstractTool
                 $this->getName(),
                 'Analysis failed',
                 [],
-                ['base_path' => isset($arguments['base_path']) ? $arguments['base_path'] : getcwd()],
+                ['base_path' => $basePath],
                 [],
                 [['message' => $e->getMessage()]]
             );

@@ -34,9 +34,9 @@ class BoostValidate extends AbstractTool
     public function execute(array $arguments)
     {
         $start = microtime(true);
+        $rootPath = $this->resolveBasePath($arguments);
 
         try {
-            $rootPath = isset($arguments['base_path']) ? $arguments['base_path'] : getcwd();
             $composerPath = rtrim($rootPath, '/') . '/composer.json';
             $projectInfo = $this->inspectProject($rootPath, $composerPath);
 
@@ -74,7 +74,7 @@ class BoostValidate extends AbstractTool
                 $this->getName(),
                 'Validation failed',
                 [],
-                ['base_path' => isset($arguments['base_path']) ? $arguments['base_path'] : getcwd()],
+                ['base_path' => $rootPath],
                 [],
                 [['message' => $e->getMessage()]]
             );

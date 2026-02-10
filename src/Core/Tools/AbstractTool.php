@@ -49,4 +49,20 @@ abstract class AbstractTool implements ToolInterface
 
         return $value;
     }
+
+    protected function resolveBasePath(array $arguments, array $argumentKeys = ['base_path', 'path'])
+    {
+        foreach ($argumentKeys as $key) {
+            if (isset($arguments[$key]) && is_string($arguments[$key]) && trim($arguments[$key]) !== '') {
+                return rtrim($arguments[$key], '/');
+            }
+        }
+
+        $configured = $this->config['base_path'] ?? null;
+        if (is_string($configured) && trim($configured) !== '') {
+            return rtrim($configured, '/');
+        }
+
+        return getcwd();
+    }
 }

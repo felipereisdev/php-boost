@@ -39,9 +39,9 @@ class BoostProfile extends AbstractTool
     public function execute(array $arguments)
     {
         $start = microtime(true);
+        $rootPath = $this->resolveBasePath($arguments);
 
         try {
-            $rootPath = isset($arguments['base_path']) ? $arguments['base_path'] : getcwd();
             $profiler = new PerformanceProfiler($rootPath);
             $report = $profiler->analyze();
 
@@ -78,7 +78,7 @@ class BoostProfile extends AbstractTool
                 $this->getName(),
                 'Performance profile failed',
                 [],
-                ['base_path' => isset($arguments['base_path']) ? $arguments['base_path'] : getcwd()],
+                ['base_path' => $rootPath],
                 [],
                 [['message' => $e->getMessage()]]
             );

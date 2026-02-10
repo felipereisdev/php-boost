@@ -24,6 +24,7 @@ class APIContractMap extends AbstractTool
             'properties' => [
                 'route_prefix' => ['type' => 'string'],
                 'format' => ['type' => 'string', 'enum' => ['json'], 'default' => 'json'],
+                'base_path' => ['type' => 'string'],
             ],
         ];
     }
@@ -31,7 +32,7 @@ class APIContractMap extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new ApiContractService();
-        $basePath = getcwd();
+        $basePath = $this->resolveBasePath($arguments);
         $routePrefix = isset($arguments['route_prefix']) ? $arguments['route_prefix'] : null;
 
         $endpoints = $service->map($basePath, $routePrefix);

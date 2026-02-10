@@ -22,6 +22,7 @@ class DeadCodeHints extends AbstractTool
         return [
             'type' => 'object',
             'properties' => [
+                'base_path' => ['type' => 'string'],
                 'paths' => ['type' => 'array', 'items' => ['type' => 'string']],
                 'min_confidence' => ['type' => 'number', 'default' => 0.6],
             ],
@@ -31,10 +32,11 @@ class DeadCodeHints extends AbstractTool
     public function execute(array $arguments)
     {
         $service = new StaticAnalysisService();
+        $basePath = $this->resolveBasePath($arguments);
 
         $paths = isset($arguments['paths']) && is_array($arguments['paths'])
             ? $arguments['paths']
-            : [getcwd() . '/app', getcwd() . '/src'];
+            : [$basePath . '/app', $basePath . '/src'];
 
         $files = $service->listPhpFiles($paths);
         $hints = $service->deadCodeHints($files);
