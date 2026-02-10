@@ -22,4 +22,25 @@ class ToolRegistrarTest extends TestCase
         $this->assertArrayHasKey('PolicyAudit', $tools);
         $this->assertArrayHasKey('DeadCodeHints', $tools);
     }
+
+    public function testRegisterCoreToolsDoesNotThrowWhenDatabaseIsUnavailable()
+    {
+        $registry = new ToolRegistry();
+
+        ToolRegistrar::registerCoreTools($registry, [
+            'database' => [
+                'driver' => 'mysql',
+                'host' => '127.0.0.1',
+                'port' => 65000,
+                'database' => 'missing',
+                'username' => 'missing',
+                'password' => 'missing',
+            ],
+        ]);
+
+        $tools = $registry->all();
+
+        $this->assertArrayHasKey('DatabaseSchema', $tools);
+        $this->assertArrayHasKey('DatabaseQuery', $tools);
+    }
 }

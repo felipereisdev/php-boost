@@ -7,6 +7,7 @@ use PDO;
 class DatabaseQuery extends AbstractTool
 {
     private $pdo;
+    private $connectionError;
 
     public function __construct(array $config = [])
     {
@@ -36,8 +37,10 @@ class DatabaseQuery extends AbstractTool
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
+            $this->connectionError = null;
         } catch (\PDOException $e) {
-            throw new \RuntimeException("Database connection failed: " . $e->getMessage());
+            $this->pdo = null;
+            $this->connectionError = "Database connection failed: " . $e->getMessage();
         }
     }
     
@@ -120,7 +123,7 @@ class DatabaseQuery extends AbstractTool
     public function execute(array $arguments)
     {
         if (!$this->pdo) {
-            throw new \RuntimeException('Database not configured');
+            throw new \RuntimeException($this->connectionError ?: 'Database not configured');
         }
 
         $this->validateArguments($arguments, ['query']);
