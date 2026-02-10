@@ -13,6 +13,54 @@ use Illuminate\Support\ServiceProvider;
 
 class BoostServiceProvider extends ServiceProvider
 {
+    private function resolveDatabaseHost(array $connection): string
+    {
+        $host = $connection['host'] ?? null;
+        if (is_array($host)) {
+            $host = reset($host);
+        }
+
+        if (!empty($host)) {
+            return (string) $host;
+        }
+
+        $readHost = $connection['read']['host'] ?? null;
+        if (is_array($readHost)) {
+            $readHost = reset($readHost);
+        }
+
+        if (!empty($readHost)) {
+            return (string) $readHost;
+        }
+
+        $writeHost = $connection['write']['host'] ?? null;
+        if (is_array($writeHost)) {
+            $writeHost = reset($writeHost);
+        }
+
+        if (!empty($writeHost)) {
+            return (string) $writeHost;
+        }
+
+        return 'localhost';
+    }
+
+    private function resolveDatabasePort(string $driver, array $connection): int
+    {
+        if (!empty($connection['port'])) {
+            return (int) $connection['port'];
+        }
+
+        switch ($driver) {
+            case 'pgsql':
+                return 5432;
+            case 'sqlsrv':
+                return 1433;
+            default:
+                return 3306;
+        }
+    }
+
     public function register()
     {
         $this->mergeConfigFrom(
@@ -42,14 +90,18 @@ class BoostServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(Server::class, function ($app) {
+            $defaultConnection = (string) config('database.default');
+            $connection = config('database.connections.' . $defaultConnection, []);
+            $driver = (string) ($connection['driver'] ?? $defaultConnection);
+
             $config = [
                 'database' => [
-                    'driver' => config('database.default'),
-                    'host' => config('database.connections.' . config('database.default') . '.host'),
-                    'database' => config('database.connections.' . config('database.default') . '.database'),
-                    'username' => config('database.connections.' . config('database.default') . '.username'),
-                    'password' => config('database.connections.' . config('database.default') . '.password'),
-                    'port' => config('database.connections.' . config('database.default') . '.port', 3306),
+                    'driver' => $driver,
+                    'host' => $this->resolveDatabaseHost($connection),
+                    'database' => $connection['database'] ?? null,
+                    'username' => $connection['username'] ?? null,
+                    'password' => $connection['password'] ?? null,
+                    'port' => $this->resolveDatabasePort($driver, $connection),
                 ],
                 'log_path' => storage_path('logs/laravel.log'),
             ];
