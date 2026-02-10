@@ -22,7 +22,7 @@ Framework-agnostic MCP Server for PHP 7.4+ with support for Laravel, Lumen and s
 
 ## Installation
 
-### Laravel 8.x
+### Laravel (8.x to 11.x)
 
 ```bash
 composer require felipereisdev/php-boost
@@ -30,7 +30,7 @@ composer require felipereisdev/php-boost
 
 The service provider will be automatically registered.
 
-### Lumen 8.x
+### Lumen (8.x to 11.x)
 
 ```bash
 composer require felipereisdev/php-boost
@@ -54,12 +54,12 @@ composer require felipereisdev/php-boost
 
 After installation, generate AI assistant guidelines for your project:
 
-**Laravel/Lumen:**
+**Laravel:**
 ```bash
 php artisan boost:install
 ```
 
-**Standalone:**
+**Lumen / Standalone:**
 ```bash
 ./vendor/bin/boost-install
 ```
@@ -102,7 +102,7 @@ Templates are stored in `.php-boost/templates/` and support merge strategies:
 
 See [docs/CUSTOM_TEMPLATES.md](docs/CUSTOM_TEMPLATES.md) for details.
 
-### Code Quality & Validation
+### Code Quality & Validation (Laravel Command)
 
 Validate your code against best practices and guidelines:
 
@@ -122,7 +122,7 @@ The validation includes:
 - **Security**: eval() usage, weak hashing, SQL injection risks
 - **Performance**: N+1 queries, pagination, nested loops
 
-### Migration Path Generator
+### Migration Path Generator (Laravel Command)
 
 Generate step-by-step migration guides for framework upgrades:
 
@@ -137,7 +137,7 @@ Provides:
 - **Recommended Approach**: Incremental vs direct upgrade
 - **Resources**: Documentation links and tools
 
-### Project Health Score
+### Project Health Score (Laravel Command)
 
 Get comprehensive health analysis of your project:
 
@@ -160,9 +160,15 @@ Analyzes:
 
 ### Start MCP Server
 
-### Laravel/Lumen
+### Laravel
 
 Start the MCP server:
+
+```bash
+php artisan boost:start
+```
+
+### Lumen
 
 ```bash
 php artisan boost:start
@@ -200,7 +206,7 @@ $server->start();
 
 ## Available Tools
 
-### Core Tools
+### Core Tools (Registered by Default)
 
 | Tool | Description | Framework | Read-Only |
 |------|-------------|-----------|-----------|
@@ -208,149 +214,18 @@ $server->start();
 | `DatabaseSchema` | Get database schema | All | ✓ |
 | `DatabaseQuery` | Execute read-only SQL queries | All | ✓ |
 | `ReadLogEntries` | Read application logs | All | ✓ |
-| `ProjectInspector` | Inspect project structure | All | ✓ |
 
-### Laravel/Lumen Tools
+### Framework Tools (Registered by Default)
 
-| Tool | Description | Read-Only |
-|------|-------------|-----------|
-| `ListRoutes` | List application routes | ✓ |
-| `ListArtisanCommands` | List all Artisan commands | ✓ |
-| `ApplicationInfo` | Get application info (models, controllers, providers, dependencies) | ✓ |
-| `Tinker` | Execute PHP code in application context (REPL) | ✗ |
-| `CacheManager` | Manage cache (get, set, forget, clear) | ✗ |
-| `QueueStatus` | Check queue status, list pending/failed jobs, retry jobs | ✗ |
+| Tool | Description | Framework | Read-Only |
+|------|-------------|-----------|-----------|
+| `ListRoutes` | List application routes | Laravel/Lumen | ✓ |
 
-### Tool Examples
-
-#### Tinker - Execute PHP Code
-
-Execute PHP code in the context of the Laravel application:
-
-```json
-{
-  "code": "User::count()"
-}
-```
-
-Response:
-```json
-{
-  "result": 42,
-  "output": null
-}
-```
-
-#### CacheManager - Manage Cache
-
-Get cache value:
-```json
-{
-  "operation": "get",
-  "key": "user:123"
-}
-```
-
-Set cache value:
-```json
-{
-  "operation": "set",
-  "key": "user:123",
-  "value": "{\"name\":\"John\"}",
-  "ttl": 3600
-}
-```
-
-Clear all cache:
-```json
-{
-  "operation": "clear"
-}
-```
-
-#### QueueStatus - Queue Management
-
-Get pending jobs:
-```json
-{
-  "type": "pending",
-  "queue": "default",
-  "limit": 50
-}
-```
-
-Get failed jobs:
-```json
-{
-  "type": "failed",
-  "limit": 20
-}
-```
-
-Get queue statistics:
-```json
-{
-  "type": "stats"
-}
-```
-
-Retry failed job:
-```json
-{
-  "type": "retry",
-  "job_id": "123"
-}
-```
-
-#### ApplicationInfo - Application Details
-
-Get all application information:
-```json
-{
-  "section": "all"
-}
-```
-
-Get only models:
-```json
-{
-  "section": "models"
-}
-```
-
-Response includes:
-- Framework info (Laravel version, PHP version, timezone, locale)
-- Environment info (app name, URL, cache/queue drivers)
-- Models (name and path)
-- Controllers (name and path)
-- Service providers
-- Routes count by HTTP method
-- Dependencies (require and require-dev)
-
-#### ListArtisanCommands - List Commands
-
-List all Artisan commands:
-```json
-{}
-```
-
-Filter by namespace:
-```json
-{
-  "namespace": "make"
-}
-```
-
-Search by keyword:
-```json
-{
-  "search": "cache"
-}
-```
+Other framework tools exist in the codebase and can be registered manually when needed.
 
 ## Available Commands
 
-### Laravel/Lumen
+### Laravel
 
 | Command | Description |
 |---------|-------------|
@@ -359,6 +234,16 @@ Search by keyword:
 | `boost:validate` | Validate code against guidelines |
 | `boost:migrate-guide` | Generate migration path between versions |
 | `boost:health` | Calculate project health score |
+| `boost:snippet` | Generate code snippets following project guidelines |
+| `boost:profile` | Analyze performance and detect issues |
+| `boost:docs` | Generate project documentation |
+| `boost:analyze` | AI-powered codebase analysis and suggestions |
+
+### Lumen
+
+| Command | Description |
+|---------|-------------|
+| `boost:start` | Start MCP server |
 
 ### Standalone PHP
 
@@ -384,8 +269,8 @@ php artisan vendor:publish --tag=boost-config
 php-boost/
 ├── src/
 │   ├── Core/          # Framework-agnostic MCP implementation
-│   ├── Laravel/       # Laravel 8.x adapter
-│   ├── Lumen/         # Lumen 8.x adapter
+│   ├── Laravel/       # Laravel 8.x-11.x adapter
+│   ├── Lumen/         # Lumen 8.x-11.x adapter
 │   └── Standalone/    # Standalone PHP bootstrap
 ```
 
