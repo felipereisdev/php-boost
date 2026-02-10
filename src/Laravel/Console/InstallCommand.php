@@ -120,7 +120,7 @@ class InstallCommand extends Command
         $this->info('Next Steps:');
         $this->info('1. Review generated CLAUDE.md and AGENTS.md files');
         $this->info('2. Customize any sections below the AUTO-GENERATED markers');
-        $this->info('3. Start the MCP server: php artisan boost:start');
+        $this->info('3. Configure your MCP client to use php artisan boost:start (auto-start)');
         $this->info('4. Re-run this command anytime to update guidelines');
         $this->newLine();
         $this->comment('Tip: Use --claude-only or --agents-only to regenerate specific files');

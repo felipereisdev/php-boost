@@ -1,13 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-if (file_exists(__DIR__ . '/../../../autoload.php')) {
-    require __DIR__ . '/../../../autoload.php';
-} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require __DIR__ . '/../vendor/autoload.php';
-} else {
-    die('Autoloader not found. Run: composer install' . PHP_EOL);
-}
+require __DIR__ . '/../vendor/autoload.php';
 
 use FelipeReisDev\PhpBoost\Core\Services\ConfigurationExporter;
 use FelipeReisDev\PhpBoost\Core\Services\ConfigurationImporter;

@@ -168,7 +168,7 @@ class Install
         $this->output('Next Steps:');
         $this->output('1. Review generated CLAUDE.md and AGENTS.md files');
         $this->output('2. Customize any sections below the AUTO-GENERATED markers');
-        $this->output('3. Start the MCP server: ./vendor/bin/boost-server');
+        $this->output('3. Configure your MCP client to use ./vendor/bin/boost-server (auto-start)');
         $this->output('4. Re-run this command anytime to update guidelines');
         $this->output('');
         $this->comment('Tip: Use --claude-only or --agents-only to regenerate specific files');

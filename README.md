@@ -25,7 +25,7 @@ Framework-agnostic MCP Server for PHP 7.4+ with support for Laravel, Lumen and s
 ### Laravel (8.x to 11.x)
 
 ```bash
-composer require felipereisdev/php-boost
+composer require --dev felipereisdev/php-boost
 ```
 
 The service provider will be automatically registered.
@@ -33,7 +33,7 @@ The service provider will be automatically registered.
 ### Lumen (8.x to 11.x)
 
 ```bash
-composer require felipereisdev/php-boost
+composer require --dev felipereisdev/php-boost
 ```
 
 Register the service provider in `bootstrap/app.php`:
@@ -45,32 +45,10 @@ $app->register(FelipeReisDev\PhpBoost\Lumen\BoostServiceProvider::class);
 ### Standalone PHP
 
 ```bash
-composer require felipereisdev/php-boost
+composer require --dev felipereisdev/php-boost
 ```
 
-### Global Install (All PHP Projects on Your Machine)
-
-Install once with Composer global:
-
-```bash
-composer global require felipereisdev/php-boost
-```
-
-Then run in any PHP project:
-
-```bash
-boost-server --project=/absolute/path/to/project
-boost-install --path=/absolute/path/to/project
-```
-
-You can also set default project path via env var:
-
-```bash
-export PHP_BOOST_PROJECT_PATH=/absolute/path/to/project
-boost-server
-```
-
-> `php artisan boost:install` only works when `php-boost` is installed in that specific project (`composer require` in project).
+> Install this package as a dev dependency inside each project. Global installation is not supported.
 
 ## Usage
 
@@ -86,11 +64,6 @@ php artisan boost:install
 **Lumen / Standalone:**
 ```bash
 ./vendor/bin/boost-install
-```
-
-**Global install (without project dependency):**
-```bash
-boost-install --path=/absolute/path/to/project
 ```
 
 This will create:
@@ -181,11 +154,14 @@ Analyzes:
 - **Dependencies**: Lock file, outdated packages (10%)
 - **Architecture**: Clean patterns, service layer (5%)
 
-### Start MCP Server
+### MCP Client Auto-Start
+
+The MCP client should start the server process automatically when needed.  
+Do not run `boost:start` or `boost-server` manually in a terminal for normal MCP usage.
 
 ### Laravel
 
-Start the MCP server:
+Command used by MCP client:
 
 ```bash
 php artisan boost:start
@@ -201,19 +177,6 @@ php artisan boost:start
 
 ```bash
 ./vendor/bin/boost-server
-```
-
-Global install usage:
-
-```bash
-boost-server --project=/absolute/path/to/project
-```
-
-Using default project from env var:
-
-```bash
-export PHP_BOOST_PROJECT_PATH=/absolute/path/to/project
-boost-server
 ```
 
 Or create a custom bootstrap:
@@ -328,31 +291,24 @@ Legacy tool outputs are automatically normalized to this envelope at the MCP ser
 | Command | Description |
 |---------|-------------|
 | `boost:install` | Generate AI guidelines (CLAUDE.md, AGENTS.md) |
-| `boost:start` | Start MCP server |
+| `boost:start` | MCP server entrypoint (auto-started by MCP client) |
 | `boost:fix` | Auto-fix code style issues |
 
 ### Lumen
 
 | Command | Description |
 |---------|-------------|
-| `boost:start` | Start MCP server |
+| `boost:start` | MCP server entrypoint (auto-started by MCP client) |
 
 ### Standalone PHP
 
 | Command | Description |
 |---------|-------------|
-| `boost-server` | Start MCP server |
+| `boost-server` | MCP server entrypoint (auto-started by MCP client) |
 | `boost-install` | Generate AI guidelines |
 | `boost-template` | Manage custom templates |
 | `boost-sync` | Export/import configuration |
 | `boost-validate` | Validate code quality |
-
-### Global Binaries
-
-| Command | Description |
-|---------|-------------|
-| `boost-server --project=/path/to/project` | Start MCP server for any PHP project |
-| `boost-install --path=/path/to/project` | Generate AI guidelines for any PHP project |
 
 ## MCP Tool Equivalents (Breaking Change)
 

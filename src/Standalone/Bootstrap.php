@@ -46,20 +46,9 @@ class Bootstrap
         $server->start();
     }
 
-    public static function fromEnv($basePath = null)
+    public static function fromEnv()
     {
-        $resolvedBasePath = rtrim(
-            $basePath ?: (getenv('PHP_BOOST_PROJECT_PATH') ?: getcwd()),
-            '/'
-        );
-
-        $defaultLogPath = $resolvedBasePath . '/storage/logs/laravel.log';
-        if (!file_exists($defaultLogPath)) {
-            $defaultLogPath = $resolvedBasePath . '/storage/logs/app.log';
-        }
-
         $config = [
-            'base_path' => $resolvedBasePath,
             'database' => [
                 'driver' => getenv('DB_CONNECTION') ?: 'mysql',
                 'host' => getenv('DB_HOST') ?: 'localhost',
@@ -68,7 +57,7 @@ class Bootstrap
                 'password' => getenv('DB_PASSWORD') ?: '',
                 'port' => getenv('DB_PORT') ?: 3306,
             ],
-            'log_path' => getenv('LOG_PATH') ?: $defaultLogPath,
+            'log_path' => getenv('LOG_PATH') ?: __DIR__ . '/../../storage/logs/app.log',
         ];
 
         return new self($config);
