@@ -1,0 +1,10 @@
+{
+    "auto_update": true,
+    "templates": {
+        "enabled": []
+    },
+    "preferences": {
+        "generate_claude": true,
+        "generate_agents": true
+    }
+}

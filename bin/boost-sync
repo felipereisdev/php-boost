@@ -1,0 +1,209 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use FelipeReisDev\PhpBoost\Core\Services\ConfigurationExporter;
+use FelipeReisDev\PhpBoost\Core\Services\ConfigurationImporter;
+
+$command = $argv[1] ?? 'help';
+$rootPath = getcwd();
+
+switch ($command) {
+    case 'export':
+        handleExport($argv, $rootPath);
+        break;
+    
+    case 'import':
+        handleImport($argv, $rootPath);
+        break;
+    
+    case 'help':
+    case '--help':
+    case '-h':
+        displayHelp();
+        break;
+    
+    default:
+        echo "Unknown command: {$command}\n\n";
+        displayHelp();
+        exit(1);
+}
+
+function handleExport($argv, $rootPath)
+{
+    $outputFile = null;
+    $outputUrl = null;
+    $webhook = null;
+    
+    foreach ($argv as $i => $arg) {
+        if (strpos($arg, '--file=') === 0) {
+            $outputFile = substr($arg, 7);
+        } elseif (strpos($arg, '--url=') === 0) {
+            $outputUrl = substr($arg, 6);
+        } elseif (strpos($arg, '--webhook=') === 0) {
+            $webhook = substr($arg, 10);
+        } elseif (strpos($arg, '--path=') === 0) {
+            $rootPath = substr($arg, 7);
+        }
+    }
+    
+    try {
+        $exporter = new ConfigurationExporter($rootPath);
+        
+        if ($outputUrl) {
+            echo "Exporting configuration to URL...\n";
+            $response = $exporter->exportToUrl($outputUrl, $webhook);
+            echo "✓ Configuration exported successfully\n";
+            echo "Response: {$response}\n";
+        } else {
+            echo "Exporting configuration...\n";
+            $file = $exporter->exportToFile($outputFile);
+            echo "✓ Configuration exported to: {$file}\n";
+        }
+        
+        exit(0);
+    } catch (\Exception $e) {
+        echo "✗ Export failed: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+}
+
+function handleImport($argv, $rootPath)
+{
+    $inputFile = null;
+    $inputUrl = null;
+    $merge = false;
+    $overwrite = false;
+    
+    foreach ($argv as $i => $arg) {
+        if (strpos($arg, '--file=') === 0) {
+            $inputFile = substr($arg, 7);
+        } elseif (strpos($arg, '--url=') === 0) {
+            $inputUrl = substr($arg, 6);
+        } elseif (strpos($arg, '--path=') === 0) {
+            $rootPath = substr($arg, 7);
+        } elseif ($arg === '--merge') {
+            $merge = true;
+        } elseif ($arg === '--overwrite') {
+            $overwrite = true;
+        }
+    }
+    
+    if (!$inputFile && !$inputUrl) {
+        echo "✗ Error: Either --file or --url must be specified\n";
+        exit(1);
+    }
+    
+    try {
+        $importer = new ConfigurationImporter($rootPath);
+        
+        echo "Importing configuration...\n";
+        
+        if ($inputUrl) {
+            echo "Fetching from URL: {$inputUrl}\n";
+            
+            if ($merge) {
+                $config = json_decode(file_get_contents($inputUrl), true);
+                $result = $importer->merge($config, $overwrite);
+            } else {
+                $result = $importer->importFromUrl($inputUrl);
+            }
+        } else {
+            echo "Loading from file: {$inputFile}\n";
+            
+            if ($merge) {
+                $config = json_decode(file_get_contents($inputFile), true);
+                $result = $importer->merge($config, $overwrite);
+            } else {
+                $result = $importer->importFromFile($inputFile);
+            }
+        }
+        
+        echo "✓ Configuration imported successfully\n";
+        
+        if ($result['preferences']) {
+            echo "  - Preferences updated\n";
+        }
+        
+        if ($result['custom_templates']) {
+            echo "  - Custom templates imported\n";
+        }
+        
+        exit(0);
+    } catch (\Exception $e) {
+        echo "✗ Import failed: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+}
+
+function displayHelp()
+{
+    echo <<<'HELP'
+PHP Boost - Team Sync
+
+Manage and share PHP Boost configurations across team members.
+
+Usage:
+  ./vendor/bin/boost-sync <command> [options]
+
+Commands:
+  export              Export configuration to file or URL
+  import              Import configuration from file or URL
+  help                Display this help message
+
+Export Options:
+  --file=<path>       Output file path (default: .php-boost/team-config.json)
+  --url=<url>         Export to remote URL via HTTP POST
+  --webhook=<url>     Notify webhook after export
+  --path=<path>       Project root path
+
+Import Options:
+  --file=<path>       Import from file
+  --url=<url>         Import from remote URL
+  --merge             Merge with existing configuration
+  --overwrite         Overwrite existing values when merging
+  --path=<path>       Project root path
+
+Examples:
+  # Export to file
+  ./vendor/bin/boost-sync export --file=config.json
+
+  # Export to remote repository
+  ./vendor/bin/boost-sync export --url=https://team.example.com/config
+
+  # Export with webhook notification
+  ./vendor/bin/boost-sync export --webhook=https://slack.example.com/webhook
+
+  # Import from file
+  ./vendor/bin/boost-sync import --file=config.json
+
+  # Import from URL
+  ./vendor/bin/boost-sync import --url=https://team.example.com/config
+
+  # Merge configurations (keep existing values)
+  ./vendor/bin/boost-sync import --file=config.json --merge
+
+  # Merge and overwrite existing values
+  ./vendor/bin/boost-sync import --file=config.json --merge --overwrite
+
+Configuration Format:
+  {
+    "version": "1.0",
+    "exported_at": "2025-02-09T22:00:00+00:00",
+    "project": {
+      "name": "my-project",
+      "php_version": "^8.0"
+    },
+    "preferences": {
+      "locale": "pt-BR",
+      "auto_update": true,
+      "templates": []
+    },
+    "custom_templates": {
+      "custom/template.php": "<?php return 'content';"
+    }
+  }
+
+HELP;
+}

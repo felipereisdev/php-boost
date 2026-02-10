@@ -1,0 +1,11 @@
+# .gitignore
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+.env
+.phpunit.result.cache
+.DS_Store
+Thumbs.db
+*.log
+/storage/logs/*.log

@@ -1,0 +1,155 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use FelipeReisDev\PhpBoost\Standalone\TemplateScaffold;
+
+$command = $argv[1] ?? null;
+$rootPath = getcwd();
+
+if (!$command || $command === '--help' || $command === '-h') {
+    displayHelp();
+    exit(0);
+}
+
+$scaffold = new TemplateScaffold($rootPath);
+
+try {
+    switch ($command) {
+        case 'new':
+        case 'create':
+            handleCreate($scaffold, $argv);
+            break;
+        
+        case 'list':
+        case 'ls':
+            handleList($scaffold, $argv);
+            break;
+        
+        default:
+            echo "Unknown command: {$command}\n\n";
+            displayHelp();
+            exit(1);
+    }
+} catch (\Exception $e) {
+    echo "\033[31mError: " . $e->getMessage() . "\033[0m\n";
+    exit(1);
+}
+
+function handleCreate($scaffold, $argv)
+{
+    $type = $argv[2] ?? null;
+    $name = $argv[3] ?? null;
+    
+    if (!$type || !$name) {
+        echo "Usage: boost-template new <type> <name> [options]\n";
+        echo "Example: boost-template new package my-package\n";
+        exit(1);
+    }
+    
+    $options = [];
+    
+    foreach ($argv as $arg) {
+        if ($arg === '--force') {
+            $options['force'] = true;
+        } elseif (strpos($arg, '--merge=') === 0) {
+            $options['merge'] = substr($arg, 8);
+        }
+    }
+    
+    $path = $scaffold->scaffold($type, $name, $options);
+    
+    echo "\033[32m✓ Template created successfully!\033[0m\n";
+    echo "Location: {$path}\n";
+    echo "\nNext steps:\n";
+    echo "1. Edit the template file to add your custom guidelines\n";
+    echo "2. Run ./vendor/bin/boost-install to regenerate guidelines\n";
+}
+
+function handleList($scaffold, $argv)
+{
+    $type = $argv[2] ?? null;
+    
+    $templates = $scaffold->list($type);
+    
+    if (empty($templates)) {
+        echo "No custom templates found.\n";
+        echo "Create one with: boost-template new <type> <name>\n";
+        exit(0);
+    }
+    
+    echo "Custom Templates:\n";
+    echo "=================\n\n";
+    
+    foreach ($templates as $typeKey => $files) {
+        echo ucfirst($typeKey) . ":\n";
+        
+        if (empty($files)) {
+            echo "  (none)\n";
+        } else {
+            foreach ($files as $file) {
+                echo "  - " . basename($file) . "\n";
+            }
+        }
+        
+        echo "\n";
+    }
+}
+
+function displayHelp()
+{
+    echo <<<'HELP'
+PHP Boost - Template Scaffold Command
+
+Usage:
+  ./vendor/bin/boost-template <command> [arguments] [options]
+
+Commands:
+  new <type> <name>      Create a new custom template
+  list [type]            List all custom templates (optionally filtered by type)
+
+Template Types:
+  php                    PHP version-specific template (e.g., php81)
+  framework              Framework version template (e.g., laravel11)
+  database               Database-specific template (e.g., oracle)
+  environment            Environment template (e.g., docker)
+  package                Package template (e.g., my-package)
+
+Options:
+  --force                Overwrite existing template
+  --merge=<strategy>     Merge strategy: replace (default), append, prepend
+  -h, --help             Display this help message
+
+Merge Strategies:
+  replace                Replace default template entirely
+  append                 Add custom content after default template
+  prepend                Add custom content before default template
+
+Examples:
+  Create a custom package template:
+    ./vendor/bin/boost-template new package my-package
+
+  Create a custom database template:
+    ./vendor/bin/boost-template new database oracle
+
+  Create a framework template with append merge:
+    ./vendor/bin/boost-template new framework laravel11 --merge=append
+
+  List all custom templates:
+    ./vendor/bin/boost-template list
+
+  List only package templates:
+    ./vendor/bin/boost-template list package
+
+Template Location:
+  All custom templates are stored in .php-boost/templates/ in your project.
+  They follow the same directory structure as core templates:
+    - .php-boost/templates/Php/
+    - .php-boost/templates/Framework/
+    - .php-boost/templates/Database/
+    - .php-boost/templates/Environment/
+    - .php-boost/templates/Packages/
+
+HELP;
+}

@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use FelipeReisDev\PhpBoost\Standalone\Install;
+
+$options = [];
+$rootPath = getcwd();
+
+foreach ($argv as $arg) {
+    if ($arg === '--force') {
+        $options['force'] = true;
+    } elseif ($arg === '--claude-only') {
+        $options['claude-only'] = true;
+    } elseif ($arg === '--agents-only') {
+        $options['agents-only'] = true;
+    } elseif ($arg === '--silent') {
+        $options['silent'] = true;
+    } elseif ($arg === '--interactive' || $arg === '-i') {
+        $options['interactive'] = true;
+    } elseif ($arg === '--git-commit') {
+        $options['git-commit'] = true;
+    } elseif ($arg === '--git-setup') {
+        $options['git-setup'] = true;
+    } elseif ($arg === '--no-boost') {
+        echo "Skipping PHP Boost installation.\n";
+        exit(0);
+    } elseif (strpos($arg, '--path=') === 0) {
+        $rootPath = substr($arg, 7);
+    } elseif (strpos($arg, '--lang=') === 0) {
+        $options['lang'] = substr($arg, 7);
+    } elseif ($arg === '--help' || $arg === '-h') {
+        displayHelp();
+        exit(0);
+    }
+}
+
+function displayHelp()
+{
+    echo <<<'HELP'
+PHP Boost - Installation Command
+
+Usage:
+  ./vendor/bin/boost-install [options]
+
+Options:
+  --force              Overwrite existing files without backup
+  --claude-only        Generate only CLAUDE.md
+  --agents-only        Generate only AGENTS.md
+  --interactive, -i    Interactive mode with template selection
+  --lang=<locale>      Set language for guidelines (en, pt-BR, es, fr, de)
+  --git-commit         Auto-commit generated files to git
+  --git-setup          Setup git integration (.gitattributes, hooks)
+  --path=<path>        Specify project root path (default: current directory)
+  --silent             Suppress output
+  --no-boost           Skip installation (used with composer --no-boost)
+  -h, --help           Display this help message
+
+Examples:
+  ./vendor/bin/boost-install
+  ./vendor/bin/boost-install --interactive
+  ./vendor/bin/boost-install --lang=pt-BR
+  ./vendor/bin/boost-install --claude-only
+  ./vendor/bin/boost-install --git-commit
+  ./vendor/bin/boost-install --git-setup
+  ./vendor/bin/boost-install --path=/path/to/project
+  composer install --no-boost
+
+HELP;
+}
+
+$installer = new Install($rootPath, $options);
+$success = $installer->execute();
+
+exit($success ? 0 : 1);

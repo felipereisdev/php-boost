@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+if (file_exists(__DIR__ . '/../../../autoload.php')) {
+    require __DIR__ . '/../../../autoload.php';
+} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+} else {
+    die('Autoloader not found. Run: composer install' . PHP_EOL);
+}
+
+use FelipeReisDev\PhpBoost\Standalone\Bootstrap;
+
+if (file_exists(getcwd() . '/.env')) {
+    $lines = file(getcwd() . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            $value = trim($value, '"\'');
+            putenv("{$key}={$value}");
+        }
+    }
+}
+
+echo "Starting PHP Boost MCP Server..." . PHP_EOL;
+
+$bootstrap = Bootstrap::fromEnv();
+$bootstrap->start();

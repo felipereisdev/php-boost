@@ -1,0 +1,70 @@
+{
+    "name": "felipereisdev/php-boost",
+    "description": "Framework-agnostic MCP Server for PHP 7.4+ with Laravel, Lumen and standalone support",
+    "keywords": [
+        "mcp",
+        "laravel",
+        "lumen",
+        "ai",
+        "dev"
+    ],
+    "homepage": "https://github.com/felipereisdev/php-boost",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Felipe Reis",
+            "email": "felipe@example.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "mockery/mockery": "^1.4"
+    },
+    "suggest": {
+        "illuminate/support": "Required for Laravel/Lumen adapter (^8.0|^9.0|^10.0|^11.0)",
+        "illuminate/console": "Required for Laravel/Lumen adapter (^8.0|^9.0|^10.0|^11.0)",
+        "illuminate/database": "Required for Laravel/Lumen adapter (^8.0|^9.0|^10.0|^11.0)"
+    },
+    "autoload": {
+        "psr-4": {
+            "FelipeReisDev\\PhpBoost\\": "src/"
+        },
+        "files": [
+            "src/Core/Support/polyfills.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/boost-server",
+        "bin/boost-install",
+        "bin/boost-template",
+        "bin/boost-sync",
+        "bin/boost-validate"
+    ],
+    "scripts": {
+        "post-install-cmd": [
+            "FelipeReisDev\\PhpBoost\\Standalone\\Install::postInstall"
+        ],
+        "post-update-cmd": [
+            "FelipeReisDev\\PhpBoost\\Standalone\\Install::postUpdate"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "FelipeReisDev\\PhpBoost\\Laravel\\BoostServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
